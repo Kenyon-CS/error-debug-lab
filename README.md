@@ -71,7 +71,7 @@ This lab uses a single table named `posts`.
 Run this exact command (replace the placeholders with **your info**):
 
 ```bash
-mysql -h "$DB_HOST" -u "$DB_USER" -p "$DB_NAME" < db/schema.sql
+mysql  -u username -p db_user < db/schema.sql
 ```
 
 Notes:
