@@ -1,7 +1,7 @@
 export async function fetchPosts() {
   // INTENTIONAL BUG (Bug 3):
   // Server route is /api/posts, but we request /api/post (404).
-  const res = await fetch('/api/post');
+  const res = await fetch('/api/posts');
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(`Request failed: ${res.status} ${txt}`);
