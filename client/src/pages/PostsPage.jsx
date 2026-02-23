@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { fetchPosts } from '../api.js';
 
 export default function PostsPage() {
-  const [posts, setPosts] = useState(null);
+  const [posts, setPosts] = useState([]);
   const [error, setError] = useState('');
 
   useEffect(() => {
