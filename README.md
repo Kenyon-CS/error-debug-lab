@@ -146,9 +146,9 @@ You will hit these in order.
 
 ---
 
-## Instructor notes (optional)
+## Instructor notes
 
-There are multiple teachable points here:
+There are multiple issues here:
 
 - Errors propagate up the stack unless handled.
 - Logging ≠ handling.
