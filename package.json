@@ -1,0 +1,12 @@
+{
+  "name": "error-debug-lab",
+  "private": true,
+  "version": "1.0.0",
+  "description": "React + Express + MariaDB debugging lab with staged errors",
+  "scripts": {
+    "install:all": "npm --prefix server install && npm --prefix client install",
+    "build": "npm --prefix client run build",
+    "start": "npm --prefix server start",
+    "dev": "npm --prefix server run dev"
+  }
+}
