@@ -1,30 +1,31 @@
-# Error Handling / Debugging Lab (React + Express + MariaDB)
+# Error Debug Lab (React + Express + MariaDB) — Student Setup
 
-This repo is designed to be **cloned and run immediately**, and then fixed in class.
-It contains **multiple intentional bugs** (different *types* of errors) that appear one after another as you fix them.
+You will **clone this repo**, add your **assigned PORT** + **your existing MariaDB credentials**, then run **one SQL script that adds a single table** to your **already‑existing database**.
 
-**Target setup time:** under 5 minutes.
-
----
-
-## Prereqs
-
-- Node 18+ and npm
-- MariaDB or MySQL client tools (`mysql`)
-- A MariaDB server you can connect to
+This project intentionally contains **several bugs**. Your job in class is to run it, observe failures, and fix them one at a time.
 
 ---
 
-## 0) Clone
+## What you need before you start
+
+- Node.js 18+ (or 20+)
+- MariaDB access (you already have this)
+- A database you already use for class (you will **NOT** create a new database)
+
+---
+
+## 0) Clone the repo
 
 ```bash
-git clone <THIS_REPO_URL>
+git clone <REPLACE_WITH_REPO_URL>
 cd error-debug-lab
 ```
 
 ---
 
-## 1) Install dependencies
+## 1) Install dependencies (one command)
+
+From the repo root:
 
 ```bash
 npm run install:all
@@ -32,126 +33,131 @@ npm run install:all
 
 ---
 
-## 2) Create & load the database (exact commands)
+## 2) Configure the server (.env) — ONE PORT ONLY
 
-Choose a database name (we’ll use `debug_lab`).
-
-### Create DB
-```bash
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS debug_lab;"
-```
-
-### Create table + seed data
-```bash
-mysql -u root -p debug_lab < db/schema.sql
-```
-
----
-
-## 3) Create your `.env` (single port)
-
-Copy the example and edit it.
+Copy the example file:
 
 ```bash
 cp server/.env.example server/.env
 ```
 
-Edit **only** these values:
+Edit `server/.env` and set:
 
-- `PORT` (one port only)
-- `DB_HOST`
-- `DB_USER`
-- `DB_PASSWORD`
-- `DB_NAME` (should be `debug_lab` if you used the commands above)
+- `PORT` to **your assigned port**
+- DB fields to your existing MariaDB credentials
+- `DB_NAME` to the name of your **existing database** (the one you already use)
+
+Example:
+
+```env
+PORT=4117
+
+DB_HOST=127.0.0.1
+DB_USER=your_user
+DB_PASSWORD=your_password
+DB_NAME=your_existing_database_name
+```
+
+Important:
+- The system uses **only this one PORT**.
+- The server serves both the API and the built React site.
 
 ---
 
-## 4) Build the client + start the server
+## 3) Add the lab table to YOUR existing database
 
-The Express server serves both:
-- the built React app
-- the API under `/api`
+This lab uses a single table named `posts`.
+
+Run this exact command (replace the placeholders with **your info**):
+
+```bash
+mysql -h "$DB_HOST" -u "$DB_USER" -p "$DB_NAME" < db/schema.sql
+```
+
+Notes:
+- You will be prompted for your password (the `-p` flag).
+- This script is safe to re-run because it uses `CREATE TABLE IF NOT EXISTS` and re-seeds only if the table is empty.
+
+If you prefer a fully explicit version:
+
+```bash
+mysql -h 127.0.0.1 -u your_user -p your_existing_database_name < db/schema.sql
+```
+
+---
+
+## 4) Build the client (required)
+
+Because the server serves the built frontend, you must build once before running:
 
 ```bash
 npm run build
+```
+
+---
+
+## 5) Start the server
+
+```bash
 npm start
 ```
 
-Then open:
+Now open:
 
-- http://localhost:YOUR_PORT
+- http://localhost:PORT
 
----
-
-# The Lab: staged bugs
-
-You will hit these in order.
-
-## Bug 1 — Configuration / Env var mismatch (server fails fast)
-**Symptom:** server exits immediately and prints a message about a missing env var.
-
-**Goal:** fix the server so it reads the correct env variable name.
-
-- File: `server/src/config.js`
-- Hint: compare what the server expects vs what `.env.example` provides.
+(Use the same PORT you set in `server/.env`.)
 
 ---
 
-## Bug 2 — Database query error (500 from API)
-**Symptom:** app loads, but the UI shows an API error, and server logs show a SQL error.
+## If something breaks immediately…
 
-**Goal:** fix the SQL query.
+That’s the point 🙂
 
-- File: `server/src/db.js`
-- Hint: check column names vs `db/schema.sql`.
+This project contains **intentional bugs** in:
+- env/config wiring
+- SQL queries / schema agreement
+- client ↔ server route contracts
+- React rendering assumptions
+- error-boundary resilience
 
----
-
-## Bug 3 — Wrong API route (404)
-**Symptom:** API is healthy, but the UI still shows “Not Found”.
-
-**Goal:** fix the client fetch URL.
-
-- File: `client/src/api.js`
+Work through them in class.
 
 ---
 
-## Bug 4 — React rendering crash (component error)
-**Symptom:** UI crashes while rendering the list.
+## Useful commands
 
-**Goal:** handle unexpected data safely (and keep the UI alive).
+Rebuild the client after frontend changes:
 
-- File: `client/src/pages/PostsPage.jsx`
-- Hint: your app should not assume the API always returns the shape you *wish* it returned.
+```bash
+npm run build
+```
 
----
+Restart server:
 
-## Bug 5 — Error boundaries / user-friendly errors
-**Symptom:** ugly crash UI or raw errors.
+```bash
+npm start
+```
 
-**Goal:** use a React Error Boundary and show a clean message to users.
+Quick API test:
 
-- Files:
-  - `client/src/components/ErrorBoundary.jsx`
-  - `client/src/main.jsx`
-
----
-
-## What “done” looks like
-
-- Visiting `/` shows a list of posts from the DB.
-- Adding a post works.
-- If the API fails, the UI shows a friendly error message (not a stack trace).
-- Server logs show errors with context (route + error).
+```bash
+curl http://localhost:PORT/api/health
+curl http://localhost:PORT/api/posts
+```
 
 ---
 
-## Instructor notes
+## Repo layout
 
-There are multiple issues here:
+- `client/` — React app (Vite)
+- `server/` — Express server (serves API + static built client)
+- `db/schema.sql` — creates the `posts` table and inserts a few rows
 
-- Errors propagate up the stack unless handled.
-- Logging ≠ handling.
-- Centralized server error middleware prevents crashes.
-- The UI should treat API responses as untrusted input.
+---
 
+## How the server is used
+
+- API routes: `/api/...`
+- Static site: built files in `client/dist/`
+- Single port: Express serves **both** the API and the site
