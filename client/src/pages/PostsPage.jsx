@@ -3,7 +3,7 @@ import { fetchPosts } from '../api.js';
 
 export default function PostsPage() {
   const [posts, setPosts] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState([]);
 
   useEffect(() => {
     (async () => {
